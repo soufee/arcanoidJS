@@ -46,7 +46,8 @@ var game = {
                     x: 68 * col + 50,
                     y: 38 * row + 35,
                     width: 64,
-                    height: 32
+                    height: 32,
+                    isAlive: true,
                 });
             }
         }
@@ -70,7 +71,9 @@ var game = {
         this.ctx.drawImage(this.sprites.ball, this.ball.width * this.ball.frame, 0, this.ball.width, this.ball.height, this.ball.x, this.ball.y, 22, 22);
 
         this.blocks.forEach(function (element) {
-            this.ctx.drawImage(this.sprites.block, element.x, element.y);
+            if (element.isAlive) {
+                this.ctx.drawImage(this.sprites.block, element.x, element.y);
+            }
         }, this);
     },
     update: function () {
@@ -81,8 +84,10 @@ var game = {
             this.ball.move();
         }
         this.blocks.forEach(function (element) {
-            if (this.ball.collide(element)) {
-                this.ball.bumpBlock(element);
+            if (element.isAlive){
+                if (this.ball.collide(element)) {
+                    this.ball.bumpBlock(element);
+                }
             }
         }, this)
 
@@ -116,10 +121,20 @@ game.ball = {
         this.y += this.dy;
     },
     collide: function (element) {
-
+        var x = this.x + this.dx;
+        var y = this.y + this.dy;
+        if (x + 22 > element.x &&
+            x < element.x + element.width &&
+            y + 22 > element.y &&
+            y < element.y + element.height
+        ) {
+            return true;
+        }
+        return false;
     },
     bumpBlock: function (block) {
-
+        this.dy *= -1;
+        block.isAlive = false;
     }
 };
 window.addEventListener("load", function () {
